@@ -1,0 +1,26 @@
+# dependencies
+node_modules/
+
+# next.js
+.next/
+out/
+
+# testing
+coverage/
+**/tests/test.db
+
+# env & local databases
+.env
+.env*.local
+**/prisma/dev.db
+**/prisma/dev.db-journal
+
+# misc
+.DS_Store
+*.pem
+*.tsbuildinfo
+next-env.d.ts
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.vercel
