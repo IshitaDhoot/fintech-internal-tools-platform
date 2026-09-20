@@ -1,0 +1,26 @@
+services:
+  migrate:
+    build:
+      context: .
+      target: migrator
+    environment:
+      DATABASE_URL: file:/data/dev.db
+    volumes:
+      - sqlite-data:/data
+
+  app:
+    build:
+      context: .
+      target: runner
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: file:/data/dev.db
+    volumes:
+      - sqlite-data:/data
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+volumes:
+  sqlite-data:
