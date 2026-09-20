@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@repo/db";
 import { applyTransition, TransitionError } from "@/lib/transitions";
-import { getActorEmail, getRole } from "@/lib/role";
-import type { Action } from "@/lib/rbac";
+import { getActorEmail, getRole } from "@repo/rbac/server";
+import type { Action } from "@repo/rbac";
 
 export const dynamic = "force-dynamic";
 

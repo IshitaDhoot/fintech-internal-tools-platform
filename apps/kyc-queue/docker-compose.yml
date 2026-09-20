@@ -1,7 +1,8 @@
 services:
   migrate:
     build:
-      context: .
+      context: ../..
+      dockerfile: apps/kyc-queue/Dockerfile
       target: migrator
     environment:
       DATABASE_URL: file:/data/dev.db
@@ -10,7 +11,8 @@ services:
 
   app:
     build:
-      context: .
+      context: ../..
+      dockerfile: apps/kyc-queue/Dockerfile
       target: runner
     ports:
       - "3000:3000"

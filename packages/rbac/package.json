@@ -1,0 +1,19 @@
+{
+  "name": "@repo/rbac",
+  "version": "0.1.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./client": "./src/client.tsx",
+    "./server": "./src/server.ts"
+  },
+  "devDependencies": {
+    "@repo/config": "workspace:*",
+    "@types/react": "^18",
+    "typescript": "^5"
+  },
+  "peerDependencies": {
+    "next": ">=14",
+    "react": "^18"
+  }
+}

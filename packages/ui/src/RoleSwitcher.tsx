@@ -1,19 +1,27 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ROLES, type Role } from "@/lib/rbac";
 import { UserCog } from "lucide-react";
+import { ROLES, Role } from "@repo/rbac";
+import { ROLE_COOKIE } from "@repo/rbac/client";
 
-function setRoleCookie(role: Role) {
-  document.cookie = `kyc-role=${role}; path=/; max-age=31536000; samesite=lax`;
-}
-
-export function RoleSwitcher({ role }: { role: Role }) {
+/**
+ * Dev-only role switcher — a STAND-IN for auth. In production the role comes
+ * from the SSO provider's claims; useRole()/getRole() are the single read path
+ * so the provider stays swappable.
+ */
+export function RoleSwitcher({
+  role,
+  cookieName = ROLE_COOKIE,
+}: {
+  role: Role;
+  cookieName?: string;
+}) {
   const router = useRouter();
 
   function select(next: Role) {
     if (next === role) return;
-    setRoleCookie(next);
+    document.cookie = `${cookieName}=${next}; path=/; max-age=31536000; samesite=lax`;
     router.refresh();
   }
 

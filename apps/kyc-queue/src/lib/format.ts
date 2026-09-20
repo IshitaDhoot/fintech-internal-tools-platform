@@ -1,11 +1,17 @@
-import type { AppStatus } from "./rbac";
+import type { StatusTone } from "@repo/ui";
+import type { AppStatus } from "@repo/rbac";
 
-export const STATUS_STYLES: Record<AppStatus, string> = {
-  PENDING: "bg-yellow-100 text-yellow-800 ring-yellow-300",
-  FLAGGED: "bg-purple-100 text-purple-800 ring-purple-300",
-  APPROVED: "bg-green-100 text-green-800 ring-green-300",
-  REJECTED: "bg-red-100 text-red-800 ring-red-300",
+export const STATUS_TONES: Record<AppStatus, StatusTone> = {
+  PENDING: "yellow",
+  FLAGGED: "purple",
+  APPROVED: "green",
+  REJECTED: "red",
 };
+
+/** Tone for any stored state string; unknown values fall back to slate. */
+export function statusTone(status: string): StatusTone {
+  return STATUS_TONES[status as AppStatus] ?? "slate";
+}
 
 export function riskLevel(score: number): "high" | "medium" | "low" {
   if (score > 75) return "high";
@@ -13,11 +19,11 @@ export function riskLevel(score: number): "high" | "medium" | "low" {
   return "low";
 }
 
-export const RISK_STYLES = {
-  high: "bg-red-100 text-red-800 ring-red-300",
-  medium: "bg-yellow-100 text-yellow-800 ring-yellow-300",
-  low: "bg-green-100 text-green-800 ring-green-300",
-} as const;
+export const RISK_TONES = {
+  high: "red",
+  medium: "yellow",
+  low: "green",
+} as const satisfies Record<string, StatusTone>;
 
 export const RISK_LABELS = {
   high: "High",

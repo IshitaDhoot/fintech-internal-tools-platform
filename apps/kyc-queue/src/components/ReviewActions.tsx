@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Ban, CheckCircle2, Flag } from "lucide-react";
-import { reasonRequired, type Action, type AppStatus, type Role } from "@/lib/rbac";
+import { reasonRequired, Role, type Action, type AppStatus } from "@repo/rbac";
 
 const ACTION_META: Record<
   Action,
@@ -46,7 +46,7 @@ export function ReviewActions({ applicationId, status, role, actions, onComplete
   const needsReason = pending ? reasonRequired(role, status, pending) : false;
   // Flagged records lock out standard users: show the buttons disabled
   // rather than hiding them, per the RBAC matrix.
-  const lockedOut = status === "FLAGGED" && role === "standard";
+  const lockedOut = status === "FLAGGED" && role === Role.STANDARD;
 
   async function submit() {
     if (!pending) return;

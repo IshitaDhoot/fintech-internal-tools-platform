@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@repo/db";
 import { QueueTable } from "@/components/QueueTable";
 
 export const dynamic = "force-dynamic";
