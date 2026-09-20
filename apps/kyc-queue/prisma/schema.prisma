@@ -1,0 +1,46 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum ApplicationStatus {
+  PENDING
+  FLAGGED
+  APPROVED
+  REJECTED
+}
+
+model UserApplication {
+  id          String            @id @default(cuid())
+  fullName    String
+  email       String
+  riskScore   Int
+  status      ApplicationStatus @default(PENDING)
+  ssnLast4    String
+  submittedAt DateTime          @default(now())
+  // Mock document-verification fields
+  dateOfBirth String
+  address     String
+  idDocument  String // e.g. "US Passport", "Driver's License"
+}
+
+// Universal audit trail for every state mutation (Internal Tooling
+// Architectural Standards §2). resourceType + resourceId identify the
+// mutated resource so the same table serves every internal tool.
+model AuditLog {
+  id            String   @id @default(cuid())
+  resourceType  String // e.g. "UserApplication"
+  resourceId    String
+  actorEmail    String
+  actorRole     String
+  previousState String
+  newState      String
+  reason        String?
+  timestamp     DateTime @default(now())
+
+  @@index([resourceType, resourceId])
+}
