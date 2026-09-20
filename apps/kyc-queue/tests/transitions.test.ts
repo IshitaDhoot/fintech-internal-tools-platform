@@ -2,9 +2,9 @@ import { beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { execSync } from "node:child_process";
 import path from "node:path";
 import fs from "node:fs";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@repo/db";
 import { applyTransition, TransitionError } from "@/lib/transitions";
-import { canPerform, reasonRequired } from "@/lib/rbac";
+import { canPerform, reasonRequired } from "@repo/rbac";
 
 const TEST_DB = path.join(process.cwd(), "tests", "test.db");
 const TEST_URL = `file:${TEST_DB}`;
@@ -40,7 +40,7 @@ const ADMIN = { actorRole: "admin" as const, actorEmail: "admin@fintech.internal
 
 beforeAll(() => {
   if (fs.existsSync(TEST_DB)) fs.unlinkSync(TEST_DB);
-  execSync("npx prisma migrate deploy", {
+  execSync("pnpm --filter @repo/db exec prisma migrate deploy", {
     env: { ...process.env, DATABASE_URL: TEST_URL },
     stdio: "ignore",
   });

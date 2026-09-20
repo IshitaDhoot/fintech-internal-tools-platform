@@ -1,9 +1,9 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { prisma } from "@/lib/prisma";
-import { getRole } from "@/lib/role";
-import { allowedActions, type AppStatus } from "@/lib/rbac";
+import { prisma } from "@repo/db";
+import { getRole } from "@repo/rbac/server";
+import { allowedActions, type AppStatus } from "@repo/rbac";
 import { ApplicationDetail } from "@/components/ApplicationDetail";
 
 export const dynamic = "force-dynamic";

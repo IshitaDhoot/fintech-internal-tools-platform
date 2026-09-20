@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { RoleSwitcher } from "@/components/RoleSwitcher";
-import { getRole } from "@/lib/role";
+import { RoleSwitcher } from "@repo/ui";
+import { getRole } from "@repo/rbac/server";
 import { ShieldCheck } from "lucide-react";
 import Link from "next/link";
 

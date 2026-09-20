@@ -1,0 +1,14 @@
+# build context is the repo root (pnpm workspace)
+**/node_modules
+**/.next
+**/out
+**/.turbo
+**/coverage
+**/tests/test.db
+**/prisma/dev.db
+**/prisma/dev.db-journal
+**/*.tsbuildinfo
+.git
+.env
+.env*.local
+.DS_Store

@@ -1,13 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { X } from "lucide-react";
+import { Modal } from "@repo/ui";
 import {
   ApplicationDetail,
   type ApplicationDetailData,
   type AuditEntryData,
 } from "@/components/ApplicationDetail";
-import type { Action, Role } from "@/lib/rbac";
+import type { Action, Role } from "@repo/rbac";
 
 interface DetailResponse {
   application: ApplicationDetailData;
@@ -49,56 +49,25 @@ export function ApplicationDetailModal({ applicationId, onClose }: Props) {
     };
   }, [applicationId, version]);
 
-  useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
-    }
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [onClose]);
-
   const refetch = useCallback(() => setVersion((v) => v + 1), []);
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
-      onClick={onClose}
-      role="dialog"
-      aria-modal="true"
-    >
-      <div
-        className="max-h-[90vh] w-full max-w-5xl overflow-y-auto rounded-lg bg-slate-100 p-6 shadow-xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
-            Application Review
-          </h2>
-          <button
-            onClick={onClose}
-            aria-label="Close"
-            className="rounded-md p-1 text-slate-500 hover:bg-slate-200 hover:text-slate-900"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-
-        {error && (
-          <p className="rounded-md bg-red-50 p-4 text-sm text-red-700">{error}</p>
-        )}
-        {!error && !data && (
-          <p className="p-8 text-center text-sm text-slate-500">Loading…</p>
-        )}
-        {data && (
-          <ApplicationDetail
-            app={data.application}
-            auditLogs={data.auditLogs}
-            role={data.role}
-            actions={data.actions}
-            onTransitionComplete={refetch}
-          />
-        )}
-      </div>
-    </div>
+    <Modal title="Application Review" onClose={onClose} className="max-w-5xl">
+      {error && (
+        <p className="rounded-md bg-red-50 p-4 text-sm text-red-700">{error}</p>
+      )}
+      {!error && !data && (
+        <p className="p-8 text-center text-sm text-slate-500">Loading…</p>
+      )}
+      {data && (
+        <ApplicationDetail
+          app={data.application}
+          auditLogs={data.auditLogs}
+          role={data.role}
+          actions={data.actions}
+          onTransitionComplete={refetch}
+        />
+      )}
+    </Modal>
   );
 }

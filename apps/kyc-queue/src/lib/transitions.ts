@@ -1,4 +1,5 @@
-import type { PrismaClient, Prisma } from "@prisma/client";
+import type { PrismaClient } from "@repo/db";
+import { withAudit, normalizeReason } from "@repo/audit";
 import {
   ACTION_TO_STATUS,
   canPerform,
@@ -6,7 +7,7 @@ import {
   type Action,
   type AppStatus,
   type Role,
-} from "./rbac";
+} from "@repo/rbac";
 
 export class TransitionError extends Error {
   constructor(
@@ -26,15 +27,13 @@ export interface TransitionInput {
   actorEmail: string;
 }
 
-type Db = PrismaClient | Prisma.TransactionClient;
-
 /**
  * Validates the RBAC matrix + reason requirements, then applies the status
- * change and appends an immutable AuditLog row in a single transaction.
+ * change and appends an immutable AuditLog row atomically via withAudit().
  */
 export async function applyTransition(db: PrismaClient, input: TransitionInput) {
   const { applicationId, action, actorRole, actorEmail } = input;
-  const reason = input.reason?.trim() || undefined;
+  const reason = normalizeReason(input.reason);
 
   if (!Object.prototype.hasOwnProperty.call(ACTION_TO_STATUS, action)) {
     throw new TransitionError(`Unknown action: ${action}`);
@@ -60,22 +59,21 @@ export async function applyTransition(db: PrismaClient, input: TransitionInput) 
     );
   }
 
-  return db.$transaction(async (tx: Db) => {
-    const updated = await tx.userApplication.update({
-      where: { id: applicationId },
-      data: { status: newStatus },
-    });
-    await tx.auditLog.create({
-      data: {
-        resourceType: "UserApplication",
-        resourceId: applicationId,
-        actorEmail,
-        actorRole,
-        previousState: status,
-        newState: newStatus,
-        reason: reason ?? null,
-      },
-    });
-    return updated;
-  });
+  return withAudit(
+    db,
+    {
+      resourceType: "UserApplication",
+      resourceId: applicationId,
+      actorEmail,
+      actorRole,
+      previousState: status,
+      newState: newStatus,
+      reason,
+    },
+    (tx) =>
+      tx.userApplication.update({
+        where: { id: applicationId },
+        data: { status: newStatus },
+      })
+  );
 }

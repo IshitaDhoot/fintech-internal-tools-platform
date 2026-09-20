@@ -1,6 +1,6 @@
 import { History } from "lucide-react";
-import { STATUS_STYLES } from "@/lib/format";
-import type { AppStatus } from "@/lib/rbac";
+import { StatusBadge } from "@repo/ui";
+import { statusTone } from "@/lib/format";
 
 interface Entry {
   id: string;
@@ -26,21 +26,13 @@ export function AuditTrail({ entries }: { entries: Entry[] }) {
             <li key={e.id} className="relative">
               <span className="absolute -left-[21px] top-1 h-2.5 w-2.5 rounded-full bg-indigo-500 ring-4 ring-white" />
               <div className="flex flex-wrap items-center gap-2 text-sm">
-                <span
-                  className={`rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${
-                    STATUS_STYLES[e.previousState as AppStatus] ?? "bg-slate-100"
-                  }`}
-                >
+                <StatusBadge tone={statusTone(e.previousState)} className="px-2">
                   {e.previousState}
-                </span>
+                </StatusBadge>
                 <span className="text-slate-400">→</span>
-                <span
-                  className={`rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${
-                    STATUS_STYLES[e.newState as AppStatus] ?? "bg-slate-100"
-                  }`}
-                >
+                <StatusBadge tone={statusTone(e.newState)} className="px-2">
                   {e.newState}
-                </span>
+                </StatusBadge>
               </div>
               <div className="mt-0.5 text-xs text-slate-500">
                 {e.actorEmail} ({e.actorRole}) ·{" "}

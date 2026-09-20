@@ -1,8 +1,10 @@
 "use client";
 
 import { FileWarning } from "lucide-react";
-import { isTerminal, type Action, type AppStatus, type Role } from "@/lib/rbac";
-import { STATUS_STYLES, RISK_LABELS, RISK_STYLES, riskLevel } from "@/lib/format";
+import { StatusBadge } from "@repo/ui";
+import { Can } from "@repo/rbac/client";
+import { isTerminal, Role, type Action, type AppStatus } from "@repo/rbac";
+import { RISK_LABELS, RISK_TONES, riskLevel, statusTone } from "@/lib/format";
 import { ReviewActions } from "@/components/ReviewActions";
 import { DocumentPanel } from "@/components/DocumentPanel";
 import { AuditTrail } from "@/components/AuditTrail";
@@ -52,24 +54,21 @@ export function ApplicationDetail({
     <div>
       <div className="mb-5 flex flex-wrap items-center gap-3">
         <h1 className="text-xl font-semibold">{app.fullName}</h1>
-        <span
-          className={`rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${STATUS_STYLES[status]}`}
-        >
-          {status}
-        </span>
-        <span
-          className={`rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${RISK_STYLES[risk]}`}
-        >
+        <StatusBadge tone={statusTone(status)}>{status}</StatusBadge>
+        <StatusBadge tone={RISK_TONES[risk]}>
           Risk {app.riskScore} · {RISK_LABELS[risk]}
-        </span>
-        {status === "FLAGGED" && role === "standard" && (
+        </StatusBadge>
+        {status === "FLAGGED" && role === Role.STANDARD && (
           <span className="inline-flex items-center gap-1.5 rounded-md bg-purple-600 px-2.5 py-1 text-xs font-semibold text-white">
             <FileWarning className="h-3.5 w-3.5" /> Requires Admin Review
           </span>
         )}
         {isTerminal(status) && (
           <span className="rounded-md bg-slate-200 px-2.5 py-1 text-xs font-medium text-slate-600">
-            Terminal state{role === "admin" ? " — admin override available" : " — read only"}
+            Terminal state
+            <Can role={role} allow={[Role.ADMIN]} fallback=" — read only">
+              {" — admin override available"}
+            </Can>
           </span>
         )}
       </div>

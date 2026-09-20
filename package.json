@@ -1,0 +1,19 @@
+{
+  "name": "fintech-internal-tools-platform",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@12.4.1",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "db:seed": "pnpm --filter kyc-queue db:seed"
+  },
+  "devDependencies": {
+    "turbo": "^2.11.2"
+  }
+}
