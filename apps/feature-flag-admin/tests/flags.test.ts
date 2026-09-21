@@ -103,11 +103,36 @@ describe("reason validation", () => {
     }
   });
 
-  it("rejects delete without a reason", async () => {
+  it("rejects a whitespace-only reason on a prod mutation", async () => {
+    const flag = await seedFlag("prod", "disabled");
+    await expect(
+      applyFlagMutation(prisma, {
+        flagId: flag.id,
+        action: "toggle",
+        reason: "   \n\t  ",
+        ...ADMIN,
+      })
+    ).rejects.toThrow("reason is required");
+    const unchanged = await prisma.featureFlag.findUnique({
+      where: { id: flag.id },
+    });
+    expect(unchanged?.state).toBe("disabled");
+    expect(await auditLogsFor(flag.id)).toHaveLength(0);
+  });
+
+  it("rejects the delete action", async () => {
     const flag = await seedFlag("dev", "disabled");
     await expect(
-      applyFlagMutation(prisma, { flagId: flag.id, action: "delete", ...ADMIN })
-    ).rejects.toThrow(FlagError);
+      applyFlagMutation(prisma, {
+        flagId: flag.id,
+        action: "delete" as "toggle",
+        reason: "cleanup",
+        ...ADMIN,
+      })
+    ).rejects.toThrow("Unknown action");
+    expect(
+      await prisma.featureFlag.findUnique({ where: { id: flag.id } })
+    ).not.toBeNull();
   });
 
   it("allows low-risk dev/staging mutations without a reason", async () => {
@@ -133,7 +158,7 @@ describe("reason validation", () => {
 describe("RBAC matrix", () => {
   it("blocks standard users from mutating prod flags server-side", async () => {
     const flag = await seedFlag("prod", "disabled");
-    for (const action of ["toggle", "set_rollout", "archive", "delete"] as const) {
+    for (const action of ["toggle", "set_rollout", "archive"] as const) {
       expect(canPerformFlag("standard", "prod", "disabled", action)).toBe(false);
       await expect(
         applyFlagMutation(prisma, {
@@ -165,9 +190,6 @@ describe("RBAC matrix", () => {
       true
     );
     expect(canPerformFlag("standard", "dev", "enabled", "archive")).toBe(false);
-    expect(canPerformFlag("standard", "staging", "enabled", "delete")).toBe(
-      false
-    );
   });
 
   it("treats archived flags as terminal — no toggle/rollout for anyone", async () => {
@@ -176,7 +198,7 @@ describe("RBAC matrix", () => {
     expect(canPerformFlag("admin", "prod", "archived", "set_rollout")).toBe(
       false
     );
-    expect(canPerformFlag("admin", "prod", "archived", "delete")).toBe(true);
+    expect(canPerformFlag("admin", "prod", "archived", "archive")).toBe(false);
     await expect(
       applyFlagMutation(prisma, {
         flagId: flag.id,
@@ -187,13 +209,13 @@ describe("RBAC matrix", () => {
     ).rejects.toThrow(FlagError);
   });
 
-  it("requires reasons only on prod mutations and archive/delete", () => {
+  it("requires reasons only on prod mutations and archive", () => {
     expect(flagReasonRequired("prod", "toggle")).toBe(true);
     expect(flagReasonRequired("prod", "set_rollout")).toBe(true);
     expect(flagReasonRequired("dev", "toggle")).toBe(false);
     expect(flagReasonRequired("staging", "set_rollout")).toBe(false);
     expect(flagReasonRequired("dev", "archive")).toBe(true);
-    expect(flagReasonRequired("staging", "delete")).toBe(true);
+    expect(flagReasonRequired("staging", "archive")).toBe(true);
   });
 });
 
@@ -216,21 +238,6 @@ describe("audit logging", () => {
       previousState: "enabled@40%",
       newState: "enabled@90%",
     });
-  });
-
-  it("audits deletes and removes the flag", async () => {
-    const flag = await seedFlag("prod", "disabled");
-    await applyFlagMutation(prisma, {
-      flagId: flag.id,
-      action: "delete",
-      reason: "Stale experiment cleanup",
-      ...ADMIN,
-    });
-    expect(
-      await prisma.featureFlag.findUnique({ where: { id: flag.id } })
-    ).toBeNull();
-    const logs = await auditLogsFor(flag.id);
-    expect(logs[0]).toMatchObject({ newState: "deleted", actorRole: "admin" });
   });
 
   it("does not write an audit entry when the mutation fails", async () => {
@@ -309,16 +316,34 @@ describe("proposals (maker path)", () => {
 
 describe("input validation", () => {
   it("rejects out-of-range rollout values", async () => {
-    const flag = await seedFlag("dev", "enabled", 10);
-    for (const bad of [-1, 101, 33.5]) {
+    const flag = await seedFlag("prod", "enabled", 10);
+    for (const bad of [-5, -1, 101, 250, 33.5]) {
       await expect(
         applyFlagMutation(prisma, {
           flagId: flag.id,
           action: "set_rollout",
           rolloutPercentage: bad,
-          ...STANDARD,
+          reason: "bounds check",
+          ...ADMIN,
         })
       ).rejects.toThrow(FlagError);
     }
+    const unchanged = await prisma.featureFlag.findUnique({
+      where: { id: flag.id },
+    });
+    expect(unchanged?.rolloutPercentage).toBe(10);
+    expect(await auditLogsFor(flag.id)).toHaveLength(0);
+  });
+
+  it("rejects out-of-range rollout in proposals too", async () => {
+    const flag = await seedFlag("prod", "enabled", 10);
+    await expect(
+      proposeFlagChange(prisma, {
+        flagId: flag.id,
+        action: "set_rollout",
+        rolloutPercentage: 250,
+        ...STANDARD,
+      })
+    ).rejects.toThrow(FlagError);
   });
 });

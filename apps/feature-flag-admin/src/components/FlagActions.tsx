@@ -8,7 +8,6 @@ import {
   Lock,
   Power,
   Send,
-  Trash2,
 } from "lucide-react";
 import { Role } from "@repo/rbac";
 import {
@@ -155,13 +154,6 @@ export function FlagActions({
               "Archive",
               Archive,
               "bg-slate-600 text-white hover:bg-slate-700"
-            )}
-          {actions.includes("delete") &&
-            actionButton(
-              "delete",
-              "Delete",
-              Trash2,
-              "bg-red-700 text-white hover:bg-red-800"
             )}
           {lockedOut && (
             <span className="inline-flex items-center gap-1.5 rounded-md bg-purple-600 px-2.5 py-1 text-xs font-semibold text-white">

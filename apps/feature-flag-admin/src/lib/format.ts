@@ -24,11 +24,10 @@ export function flagEnvTone(env: string): StatusTone {
 }
 
 /**
- * Tone for audit-log state snapshots ("enabled@50%", "proposed:disabled@0%",
- * "deleted"). Proposals render purple, deletions red.
+ * Tone for audit-log state snapshots ("enabled@50%", "proposed:disabled@0%").
+ * Proposals render purple.
  */
 export function auditStateTone(snapshot: string): StatusTone {
   if (snapshot.startsWith("proposed:")) return "purple";
-  if (snapshot === "deleted") return "red";
   return flagStateTone(snapshot.split("@")[0]);
 }

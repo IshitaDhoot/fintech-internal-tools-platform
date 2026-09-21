@@ -28,8 +28,7 @@ Defined in `packages/db/prisma/schema.prisma`:
 | `AuditLog`    | `id`, `resourceType`, `resourceId`, `actorEmail`, `actorRole`, `previousState`, `newState`, `reason`, `timestamp` |
 
 Audit state columns store compact `state@rollout%` snapshots (e.g.
-`enabled@45%`), `proposed:<snapshot>` for maker proposals, and `deleted` for
-deletions.
+`enabled@45%`) and `proposed:<snapshot>` for maker proposals.
 
 ## Architecture
 
@@ -39,7 +38,7 @@ src/
     flags/page.tsx                    # server-rendered flags dashboard
     flags/[id]/page.tsx               # deep-linkable detail page (same body as the modal)
     api/flags/[id]/route.ts           # GET detail payload for the modal
-    api/flags/[id]/mutate/route.ts    # POST toggle / set_rollout / archive / delete
+    api/flags/[id]/mutate/route.ts    # POST toggle / set_rollout / archive
     api/flags/[id]/propose/route.ts   # POST maker proposal (standard on prod)
   components/
     FlagsTable.tsx                    # column config over @repo/ui DataTable + detail modal
@@ -68,9 +67,10 @@ low-risk (Maker territory):
 | toggle / set_rollout on dev+staging | ✓ (no reason)         | ✓ (no reason)         |
 | toggle / set_rollout on prod        | ✗ — propose only      | ✓ (**reason required**) |
 | propose on prod                     | ✓ (audit-logged)      | n/a — admin applies   |
-| archive / delete                    | ✗                     | ✓ (**reason required**) |
+| archive                             | ✗                     | ✓ (**reason required**) |
 
-- `archived` is terminal: no toggle/rollout; admin may still delete.
+- `archived` is terminal: no toggle/rollout/propose for anyone. There is no
+  delete — retirement is archive.
 - Standard users on prod flags see disabled mutate buttons with a
   **Requires Admin** badge plus maker **Propose** controls.
 - Enforcement is server-side in `applyFlagMutation` / `proposeFlagChange`;

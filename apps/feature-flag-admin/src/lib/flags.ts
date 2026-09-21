@@ -21,7 +21,7 @@ export class FlagError extends Error {
 }
 
 const RESOURCE_TYPE = "FeatureFlag";
-const MUTATIONS: FlagAction[] = ["toggle", "set_rollout", "archive", "delete"];
+const MUTATIONS: FlagAction[] = ["toggle", "set_rollout", "archive"];
 
 /** Compact "state@rollout%" snapshot stored in AuditLog state columns. */
 export function flagSnapshot(
@@ -154,20 +154,6 @@ export async function applyFlagMutation(
             where: { id: flagId },
             data: { state: "archived" },
           })
-      );
-    case "delete":
-      return withAudit(
-        db,
-        {
-          resourceType: RESOURCE_TYPE,
-          resourceId: flagId,
-          actorEmail,
-          actorRole,
-          previousState,
-          newState: "deleted",
-          reason,
-        },
-        (tx) => tx.featureFlag.delete({ where: { id: flagId } })
       );
   }
 }

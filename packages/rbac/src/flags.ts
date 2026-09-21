@@ -5,7 +5,7 @@ import { Role } from "./index";
  *
  * Environment is the risk boundary: prod mutations are Checker-only and
  * always require a reason; dev/staging mutations are low-risk and open to
- * both roles. archive/delete are admin-only everywhere. Standard users on
+ * both roles. archive is admin-only everywhere. Standard users on
  * prod flags are read-only but may file a proposal (Maker) for an admin to
  * apply.
  */
@@ -15,14 +15,12 @@ export type FlagAction =
   | "toggle"
   | "set_rollout"
   | "archive"
-  | "delete"
   | "propose";
 
 export const FLAG_ACTIONS: FlagAction[] = [
   "toggle",
   "set_rollout",
   "archive",
-  "delete",
 ];
 
 /** prod is the high-risk boundary (Checker territory). */
@@ -46,8 +44,6 @@ export function canPerformFlag(
       return isHighRiskEnv(env) ? role === Role.ADMIN : true;
     case "archive":
       return role === Role.ADMIN && state !== "archived";
-    case "delete":
-      return role === Role.ADMIN;
     case "propose":
       // Makers propose only where they cannot apply: prod, non-archived.
       return (
@@ -57,15 +53,15 @@ export function canPerformFlag(
 }
 
 /**
- * Every applied prod mutation requires a non-empty reason, as do
- * archive/delete in any environment. Low-risk dev/staging changes are
+ * Every applied prod mutation requires a non-empty reason, as does
+ * archive in any environment. Low-risk dev/staging changes are
  * audited but need no justification; proposals carry an optional note.
  */
 export function flagReasonRequired(
   env: FlagEnvironment,
   action: FlagAction
 ): boolean {
-  if (action === "archive" || action === "delete") return true;
+  if (action === "archive") return true;
   if (action === "toggle" || action === "set_rollout") {
     return isHighRiskEnv(env);
   }
