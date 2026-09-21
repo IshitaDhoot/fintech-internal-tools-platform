@@ -65,6 +65,10 @@ jobs:
           curl -fsS --retry 15 --retry-delay 2 --retry-connrefused \
             http://localhost:3001/flags | grep -q "checkout.new_ui"
 
+      - name: Dump container logs on failure
+        if: failure()
+        run: docker compose -f apps/feature-flag-admin/docker-compose.yml logs
+
       - name: Tear down
         if: always()
         run: docker compose -f apps/feature-flag-admin/docker-compose.yml down -v

@@ -23,7 +23,7 @@ FROM deps AS migrator
 COPY packages/db ./packages/db
 COPY apps/feature-flag-admin/scripts ./apps/feature-flag-admin/scripts
 ENV DATABASE_URL=file:/data/dev.db
-CMD ["sh", "-c", "pnpm --filter @repo/db db:migrate && pnpm --filter feature-flag-admin db:seed"]
+CMD ["sh", "-c", "pnpm --filter @repo/db db:generate && pnpm --filter @repo/db db:migrate && pnpm --filter feature-flag-admin db:seed"]
 
 # ---- builder ----
 FROM deps AS builder
