@@ -8,7 +8,8 @@ description: How to run and smoke-test the apps/feature-flag-admin internal tool
 ## Dev server
 - `DATABASE_URL="file:./dev.db" pnpm --filter feature-flag-admin dev` serves Next.js on http://localhost:3001; "/" redirects to "/flags".
 - Seeded DB: `packages/db/prisma/dev.db` (17 FeatureFlag rows; seed via `pnpm db:seed:flags`). Inspect with `sqlite3 packages/db/prisma/dev.db "SELECT id, key, environment, state, rolloutPercentage FROM FeatureFlag;"` — columns are camelCase.
-- Useful seeded prod flags: `kyc.auto_approve_low_risk`, `transfers.instant_ach` (both prod/disabled). NB: seed state may drift if a prior test session mutated flags — check the DB first.
+- Useful seeded prod flags: `kyc.auto_approve_low_risk`, `transfers.instant_ach` (both prod/disabled), `fx.realtime_quotes` (prod/archived). NB: seed state may drift if a prior test session mutated flags — check the DB first. Reseeding regenerates ALL row IDs (cuid), so never hardcode flag IDs across runs — look them up by `key` each time. `pnpm db:seed:flags` needs `DATABASE_URL="file:./dev.db"` in the env.
+- UI quirk: clicks inside `FlagDetailModal` occasionally don't land (observed once; reopening the modal or using the deep-linkable `/flags/<id>` page — same FlagDetail/FlagActions — is a reliable fallback).
 
 ## UI facts
 - `/flags` table: click a flag **key** to open `FlagDetailModal` (fetches `/api/flags/:id` which returns `{flag, auditLogs, role, actions}`). Deep-linkable `/flags/<id>` page also exists.
