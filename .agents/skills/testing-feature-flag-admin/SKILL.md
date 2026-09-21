@@ -20,7 +20,7 @@ description: How to run and smoke-test the apps/feature-flag-admin internal tool
 ## RBAC matrix (packages/rbac/src/flags.ts)
 - dev/staging: standard+admin may toggle / set_rollout, no reason required.
 - prod: admin only for toggle/set_rollout — reason REQUIRED (empty → 400). Standard is locked out: disabled buttons + purple "Requires Admin" badge, but gets purple "Propose enable/Propose rollout" controls that POST `/propose` (writes an AuditLog `proposed:<state>@<pct>%` row only; the flag is never mutated).
-- archive/delete: admin only, reason required in ANY env. Archived is terminal — only Delete remains for admin.
+- archive: admin only, reason required in ANY env. There is no delete — archived is fully terminal ("No actions available").
 - Audit rows render `state@rollout%` snapshots, e.g. `disabled@0% → enabled@40%`.
 
 ## Verifying mutations server-side without a browser session
