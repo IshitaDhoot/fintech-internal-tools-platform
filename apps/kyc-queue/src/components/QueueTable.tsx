@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { DataTable, StatusBadge } from "@repo/ui";
+import { appStatusTone, DataTable, SeverityBadge, StatusBadge } from "@repo/ui";
 import type { DataTableColumn, DataTableFilter } from "@repo/ui";
 import type { AppStatus } from "@repo/rbac";
-import { RISK_LABELS, RISK_TONES, riskLevel, statusTone } from "@/lib/format";
+import { RISK_LABELS, riskLevel } from "@/lib/format";
 import { ApplicationDetailModal } from "@/components/ApplicationDetailModal";
 
 export interface QueueRow {
@@ -65,9 +65,9 @@ export function QueueTable({ rows }: { rows: QueueRow[] }) {
       cell: (r) => {
         const risk = riskLevel(r.riskScore);
         return (
-          <StatusBadge tone={RISK_TONES[risk]}>
+          <SeverityBadge level={risk}>
             {r.riskScore} · {RISK_LABELS[risk]}
-          </StatusBadge>
+          </SeverityBadge>
         );
       },
     },
@@ -76,7 +76,9 @@ export function QueueTable({ rows }: { rows: QueueRow[] }) {
       header: "Status",
       csvHeader: "Status",
       csvValue: (r) => r.status,
-      cell: (r) => <StatusBadge tone={statusTone(r.status)}>{r.status}</StatusBadge>,
+      cell: (r) => (
+        <StatusBadge tone={appStatusTone(r.status)}>{r.status}</StatusBadge>
+      ),
     },
     {
       key: "submittedAt",

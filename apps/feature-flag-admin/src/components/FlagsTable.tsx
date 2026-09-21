@@ -1,10 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { DataTable, StatusBadge } from "@repo/ui";
+import {
+  DataTable,
+  flagEnvTone,
+  flagStateTone,
+  StatusBadge,
+} from "@repo/ui";
 import type { DataTableColumn, DataTableFilter } from "@repo/ui";
 import type { FlagEnvironment, FlagState } from "@repo/rbac/flags";
-import { flagEnvTone, flagStateTone } from "@/lib/format";
 import { RolloutMeter } from "@/components/RolloutMeter";
 import { FlagDetailModal } from "@/components/FlagDetailModal";
 
@@ -90,7 +94,12 @@ export function FlagsTable({ rows }: { rows: FlagRow[] }) {
       firstSortDirection: "desc",
       sortValue: (r) => r.rolloutPercentage,
       csvValue: (r) => String(r.rolloutPercentage),
-      cell: (r) => <RolloutMeter value={r.rolloutPercentage} />,
+      cell: (r) => (
+        <RolloutMeter
+          value={r.rolloutPercentage}
+          muted={r.state !== "enabled"}
+        />
+      ),
     },
     {
       key: "ownerEmail",
