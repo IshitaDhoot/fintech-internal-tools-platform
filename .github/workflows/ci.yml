@@ -62,8 +62,13 @@ jobs:
 
       - name: Smoke test the running container
         run: |
-          curl -fsS --retry 15 --retry-delay 2 --retry-connrefused \
-            http://localhost:3001/flags | grep -q "checkout.new_ui"
+          for i in $(seq 1 30); do
+            if curl -fsS http://localhost:3001/flags | grep -q "checkout.new_ui"; then
+              echo "App is serving seeded flags"; exit 0
+            fi
+            sleep 2
+          done
+          echo "App did not become ready in 60s"; exit 1
 
       - name: Dump container logs on failure
         if: failure()
