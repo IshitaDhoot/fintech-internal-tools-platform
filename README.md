@@ -8,9 +8,10 @@ Applications live under `apps/`; shared, reusable code lives under `packages/`.
 | Path                          | Contents                                                        |
 | ----------------------------- | --------------------------------------------------------------- |
 | `apps/kyc-queue`              | KYC Review Queue — compliance queue for reviewing applications  |
+| `apps/feature-flag-admin`     | Feature Flag Admin — flag state/rollout management with prod guardrails |
 | `packages/db`                 | Prisma client + shared schema (incl. the universal `AuditLog`)  |
 | `packages/audit`              | `withAudit()` atomic mutation+audit helper, reason validation   |
-| `packages/rbac`               | `Role` enum, `useRole()`, `<Can/>` guard, server permission checks |
+| `packages/rbac`               | `Role` enum, `useRole()`, `<Can/>` guard, server permission checks, per-app matrices |
 | `packages/ui`                 | `DataTable`, `Modal`, `StatusBadge`, `RoleSwitcher`             |
 | `packages/config`             | Shared eslint / tsconfig / tailwind presets                     |
 
@@ -38,6 +39,7 @@ pnpm test             # unit tests (isolated sqlite test DB)
 pnpm build            # production builds
 
 pnpm db:seed          # seed the kyc-queue dev database
+pnpm db:seed:flags    # seed the feature-flag-admin dev database
 ```
 
 `DATABASE_URL` defaults to `file:./dev.db`, resolved relative to
@@ -45,8 +47,9 @@ pnpm db:seed          # seed the kyc-queue dev database
 
 ## Apps
 
-| App              | Path             | Description                                     |
-| ---------------- | ---------------- | ----------------------------------------------- |
-| KYC Review Queue | `apps/kyc-queue` | Compliance queue for reviewing KYC applications |
+| App                | Path                      | Description                                                  |
+| ------------------ | ------------------------- | ------------------------------------------------------------ |
+| KYC Review Queue   | `apps/kyc-queue`          | Compliance queue for reviewing KYC applications              |
+| Feature Flag Admin | `apps/feature-flag-admin` | Flag state/rollout admin; prod mutations gated to admin + reason |
 
 See each app's `README.md` for local setup.

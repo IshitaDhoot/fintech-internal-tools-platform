@@ -28,6 +28,29 @@ model UserApplication {
   idDocument  String // e.g. "US Passport", "Driver's License"
 }
 
+enum FlagEnvironment {
+  dev
+  staging
+  prod
+}
+
+enum FlagState {
+  enabled
+  disabled
+  archived
+}
+
+model FeatureFlag {
+  id                String          @id @default(cuid())
+  key               String          @unique // e.g. "checkout.new_ui"
+  description       String
+  environment       FlagEnvironment
+  state             FlagState       @default(disabled)
+  rolloutPercentage Int             @default(0)
+  ownerEmail        String
+  updatedAt         DateTime        @updatedAt
+}
+
 // Universal audit trail for every state mutation (Internal Tooling
 // Architectural Standards §2). resourceType + resourceId identify the
 // mutated resource so the same table serves every internal tool.
