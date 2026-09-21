@@ -5,6 +5,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./client": "./src/client.tsx",
+    "./flags": "./src/flags.ts",
     "./server": "./src/server.ts"
   },
   "devDependencies": {

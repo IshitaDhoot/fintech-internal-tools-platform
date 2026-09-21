@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - "apps/kyc-queue/**"
+      - "apps/**"
       - "packages/**"
       - "pnpm-lock.yaml"
       - "turbo.json"
@@ -12,7 +12,7 @@ on:
   pull_request:
     branches: [main]
     paths:
-      - "apps/kyc-queue/**"
+      - "apps/**"
       - "packages/**"
       - "pnpm-lock.yaml"
       - "turbo.json"
@@ -50,3 +50,30 @@ jobs:
 
       - name: Build
         run: pnpm build
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build image and boot feature-flag-admin
+        run: |
+          docker compose -f apps/feature-flag-admin/docker-compose.yml up -d --build
+
+      - name: Smoke test the running container
+        run: |
+          for i in $(seq 1 30); do
+            if curl -fsS http://localhost:3001/flags | grep -q "checkout.new_ui"; then
+              echo "App is serving seeded flags"; exit 0
+            fi
+            sleep 2
+          done
+          echo "App did not become ready in 60s"; exit 1
+
+      - name: Dump container logs on failure
+        if: failure()
+        run: docker compose -f apps/feature-flag-admin/docker-compose.yml logs
+
+      - name: Tear down
+        if: always()
+        run: docker compose -f apps/feature-flag-admin/docker-compose.yml down -v

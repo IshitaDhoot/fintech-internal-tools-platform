@@ -11,7 +11,8 @@
     "build": "turbo run build",
     "lint": "turbo run lint",
     "test": "turbo run test",
-    "db:seed": "pnpm --filter kyc-queue db:seed"
+    "db:seed": "pnpm --filter kyc-queue db:seed",
+    "db:seed:flags": "pnpm --filter feature-flag-admin db:seed"
   },
   "devDependencies": {
     "turbo": "^2.11.2"
