@@ -1,6 +1,5 @@
 import { History } from "lucide-react";
-import { StatusBadge } from "@repo/ui";
-import { statusTone } from "@/lib/format";
+import { appStatusTone, StatusBadge } from "@repo/ui";
 
 interface Entry {
   id: string;
@@ -26,11 +25,11 @@ export function AuditTrail({ entries }: { entries: Entry[] }) {
             <li key={e.id} className="relative">
               <span className="absolute -left-[21px] top-1 h-2.5 w-2.5 rounded-full bg-indigo-500 ring-4 ring-white" />
               <div className="flex flex-wrap items-center gap-2 text-sm">
-                <StatusBadge tone={statusTone(e.previousState)} className="px-2">
+                <StatusBadge tone={appStatusTone(e.previousState)} className="px-2">
                   {e.previousState}
                 </StatusBadge>
                 <span className="text-slate-400">→</span>
-                <StatusBadge tone={statusTone(e.newState)} className="px-2">
+                <StatusBadge tone={appStatusTone(e.newState)} className="px-2">
                   {e.newState}
                 </StatusBadge>
               </div>

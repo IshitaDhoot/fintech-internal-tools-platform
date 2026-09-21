@@ -1,7 +1,7 @@
 "use client";
 
 import { Lock } from "lucide-react";
-import { StatusBadge } from "@repo/ui";
+import { flagEnvTone, flagStateTone, StatusBadge } from "@repo/ui";
 import { Role } from "@repo/rbac";
 import {
   isHighRiskEnv,
@@ -9,7 +9,6 @@ import {
   type FlagEnvironment,
   type FlagState,
 } from "@repo/rbac/flags";
-import { flagEnvTone, flagStateTone } from "@/lib/format";
 import { FlagActions } from "@/components/FlagActions";
 import { RolloutMeter } from "@/components/RolloutMeter";
 import { AuditTrail, type AuditEntryData } from "@/components/AuditTrail";
@@ -86,7 +85,10 @@ export function FlagDetail({
             <div className="col-span-2">
               <dt className="mb-1 text-slate-500">Rollout</dt>
               <dd>
-                <RolloutMeter value={flag.rolloutPercentage} />
+                <RolloutMeter
+                  value={flag.rolloutPercentage}
+                  muted={flag.state !== "enabled"}
+                />
               </dd>
             </div>
             <div>
